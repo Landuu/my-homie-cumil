@@ -10,6 +10,12 @@ load_dotenv()
 def filter_retweets(var):
     return hasattr(var, "is_retweet") and not var.is_retweet
 
+@app.route('/config')
+def config():
+    print('USR: ' + os.getenv('TW_USERNAME'))
+    print('PASS: ' + os.getenv('TW_PASSWORD'))
+    return 'Ok'
+
 @app.route('/')
 def hello_world():
     print(os.getenv("TW_USERNAME"))
@@ -18,7 +24,7 @@ def hello_world():
 @app.route('/test')
 def test():
     tw = Twitter("session")
-    tw.start(os.getenv('TW_USERNAME'), os.getenv('TW_PASSWORD'), extra=os.getenv('TW_EXTRA'))
+    tw.start(username=os.getenv('TW_USERNAME'), password=os.getenv('TW_PASSWORD'))
     tweets = tw.get_tweets(username="2Dgirlenjoyer", replies=False)
     
     filtered = filter(filter_retweets, tweets)
