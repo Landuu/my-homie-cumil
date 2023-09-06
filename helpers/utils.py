@@ -1,27 +1,45 @@
 import os
 from tweety import Twitter
-
-class Config:
-    def __init__(self):
-        self.username = os.getenv("TW_USERNAME")
-        self.password = os.getenv("TW_PASSWORD")
-        self.extra = os.getenv("TW_EXTRA")
-        self.db_host = os.getenv("DB_HOST")
-        self.db_user = os.getenv("DB_USER")
-        self.db_password = os.getenv("DB_PASSWORD")
+from .database import get_database
 
 
 def create_session(extra = None):
-    config = Config()
-    tw = Twitter("session")
-    tw.start(username=config.username, password=config.password)
+    config = EnvConfig()
+    tw = Twitter('user')
+    tw.start(username=config.username, password=config.password, extra=extra)
     return tw
 
 
-def parse_tweets():
-    tw = create_session()
-    tweets = tw.get_tweets(username="2Dgirlenjoyer", replies=False)
+def get_login_lock():
+    db = get_database()
+    dbc = db.cursor()
+    dbc.execute("SELECT Value FROM Helpers WHERE Id = 'Lock' LIMIT 1")
+    row = dbc.fetchone()
+    
+    if(row is None):
+        return False
+    return row[0] == '1'
 
+
+def set_login_lock(state):
+    db = get_database()
+    dbc = db.cursor()
+    value = '1' if state else '0'
+    dbc.execute("UPDATE Helpers SET Value = %s WHERE Id = 'Lock'", [value])
+    db.commit()
+
+
+def parse_tweets():
+    if(get_login_lock()):
+        return
+
+    try:
+        tw = create_session()
+    except:
+        set_login_lock(True)
+        return
+    
+    tweets = tw.get_tweets(username="2Dgirlenjoyer", replies=False)
     filtered = []
     for tweet in tweets:
         if hasattr(tweet, "is_retweet") and not tweet.is_retweet:
