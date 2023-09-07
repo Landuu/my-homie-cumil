@@ -1,7 +1,7 @@
 import os
 from flask import Flask, request
 from dotenv import load_dotenv
-from helpers import EnvConfig, reset_database, parse_tweets, create_session, get_login_lock, set_login_lock
+from helpers import EnvConfig, reset_database, parse_tweets, create_session, get_login_lock, set_login_lock, send_email_notification
 
 
 app = Flask(__name__)
@@ -15,7 +15,7 @@ def hello_world():
 
 @app.route('/debug')
 def debug():
-    print(get_login_lock())
+    send_email_notification()
     return 'ok'
 
 @app.route('/init')

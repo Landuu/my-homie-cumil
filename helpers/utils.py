@@ -1,6 +1,8 @@
 import os
 from tweety import Twitter
 from .database import get_database
+from .config import EnvConfig
+import smtplib, ssl
 
 
 def create_session(extra = None):
@@ -27,6 +29,17 @@ def set_login_lock(state):
     value = '1' if state else '0'
     dbc.execute("UPDATE Helpers SET Value = %s WHERE Id = 'Lock'", [value])
     db.commit()
+
+
+def send_email_notification():
+    config = EnvConfig()
+    email_ctx = ssl.create_default_context()
+    with smtplib.SMTP(config.smtp_ip, config.smtp_port) as server:
+        server.ehlo()
+        server.starttls(context=email_ctx)
+        server.ehlo()
+        server.login(config.smtp_login, config.smtp_password)
+        server.sendmail(config.smtp_login, 'landuscam@gmail.com', "spardl z rowerka")
 
 
 def parse_tweets():

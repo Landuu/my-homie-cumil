@@ -8,3 +8,7 @@ class EnvConfig:
         self.db_host = os.getenv("DB_HOST")
         self.db_user = os.getenv("DB_USER")
         self.db_password = os.getenv("DB_PASSWORD")
+        self.smtp_ip = os.getenv("SMTP_IP")
+        self.smtp_port = os.getenv("SMTP_PORT")
+        self.smtp_login = os.getenv("SMTP_LOGIN")
+        self.smtp_password = os.getenv("SMTP_PASSWORD")
